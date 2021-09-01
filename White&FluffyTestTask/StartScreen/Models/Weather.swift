@@ -11,5 +11,6 @@ struct Weather {
     let cityName: String
     let currentTempreture: Int
     let condition: Condition
+    let partsOfTheDayTempreture: PartsOfTheDayTempretureModel
 }
 

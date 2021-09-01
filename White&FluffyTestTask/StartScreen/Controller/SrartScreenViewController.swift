@@ -10,32 +10,50 @@ import Alamofire
 
 class StartScreenViewController: UIViewController {
     
+    //MARK: - Properties
+    
+    var weatherArray = [Weather]()
+    var filteredArray = [Weather]()
+    
     //MARK: - UI elements
     
     private lazy var searchBar: UISearchBar = {
         let searchBar = UISearchBar()
+        searchBar.delegate = self
         return searchBar
     }()
     
-    private lazy var cityListTableView: UITableView = {
+    lazy var cityListTableView: UITableView = {
         let tableView = UITableView()
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         return tableView
     }()
     
-    private lazy var navigationBar: CustomNavigationBar = {
+    lazy var navigationBar: CustomNavigationBar = {
         let navigationBar = CustomNavigationBar()
         return navigationBar
     }()
-
+    
     //MARK: - Lifecycle methods
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        NetworkMethods.parseJson(with: NetworkConstants.urls, completion:{ [weak self] weatherArray in
+            self?.weatherArray = weatherArray
+            self?.filteredArray = weatherArray
+            self?.cityListTableView.reloadData()
+            guard let isEmpty = self?.weatherArray.isEmpty else { return }
+            if isEmpty {
+                self?.showErrorAlert()
+            }
+        })
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
         addSubviews()
         makeConstraints()
         setupTableView()
-       // NetworkMethods.parseJson(with: NetworkConstants.url!, completion:{})
     }
     
     //MARK: - Private methods
@@ -43,25 +61,25 @@ class StartScreenViewController: UIViewController {
     private func addSubviews() {
         self.view.addSubview(searchBar)
         self.view.addSubview(cityListTableView)
-        self.view.addSubview(navigationBar)
+        self.navigationController?.navigationBar.addSubview(self.navigationBar)
     }
     
     private func makeConstraints() {
-        //MARK: - Navigation Bar constraints
+        //MARK: - navigationBar constraints
         self.navigationBar.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint(item: navigationBar, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0).isActive = true
-        NSLayoutConstraint(item: navigationBar, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0).isActive = true
-        NSLayoutConstraint(item: navigationBar, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 0).isActive = true
+        NSLayoutConstraint(item: navigationBar, attribute: .leading, relatedBy: .equal, toItem: self.navigationController?.navigationBar, attribute: .leading, multiplier: 1, constant: 0).isActive = true
+        NSLayoutConstraint(item: navigationBar, attribute: .trailing, relatedBy: .equal, toItem: self.navigationController?.navigationBar, attribute: .trailing, multiplier: 1, constant: 0).isActive = true
+        NSLayoutConstraint(item: navigationBar, attribute: .top, relatedBy: .equal, toItem: self.navigationController?.navigationBar, attribute: .top, multiplier: 1, constant: 0).isActive = true
         NSLayoutConstraint(item: navigationBar, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 70).isActive = true
         
-        //MARK: - Search Bar constraints
+        //MARK: - searchBar constraints
         self.searchBar.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint(item: searchBar, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 10).isActive = true
         NSLayoutConstraint(item: searchBar, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: -10).isActive = true
-        NSLayoutConstraint(item: searchBar, attribute: .top, relatedBy: .equal, toItem: self.navigationBar, attribute: .bottom, multiplier: 1, constant: 20).isActive = true
+        NSLayoutConstraint(item: searchBar, attribute: .top, relatedBy: .equal, toItem: self.view, attribute: .top, multiplier: 1, constant: 100).isActive = true
         NSLayoutConstraint(item: searchBar, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 40).isActive = true
         
-        //MARK: - Table View constraints
+        //MARK: - cityListTableView constraints
         self.cityListTableView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint(item: cityListTableView, attribute: .leading, relatedBy: .equal, toItem: self.view, attribute: .leading, multiplier: 1, constant: 0).isActive = true
         NSLayoutConstraint(item: cityListTableView, attribute: .trailing, relatedBy: .equal, toItem: self.view, attribute: .trailing, multiplier: 1, constant: 0).isActive = true
@@ -74,21 +92,10 @@ class StartScreenViewController: UIViewController {
         cityListTableView.dataSource = self
         cityListTableView.register(CityListTableViewCell.self, forCellReuseIdentifier: CityListTableViewCell.reuseIdentifier)
     }
-}
-
-extension StartScreenViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        1
-    }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: CityListTableViewCell.reuseIdentifier, for: indexPath) as! CityListTableViewCell
-        return cell
-    }
-}
-
-extension UITableViewCell {
-    public static var reuseIdentifier: String {
-        String(describing: self)
+    private func showErrorAlert() {
+        let alert = UIAlertController(title: "Данные с сервера не получены", message: "Пожалуйста, сделайте запрос позже", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .destructive, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }

@@ -9,6 +9,8 @@ import UIKit
 
 class MoreInfoViewController: UIViewController {
     
+    var partsOfTheDayTempreture: [PartOfTheDay : Int]?
+    
     //MARK: - UI elements
     
     lazy var cityNameLabel: UILabel = {
@@ -30,11 +32,14 @@ class MoreInfoViewController: UIViewController {
         super.viewDidLoad()
         addSubviews()
         makeConstraints()
+        setupTableView()
+        partsOftheDayTempretureTableView.tableFooterView = UIView()
     }
      //MARK: - Private methods
     
     private func addSubviews() {
         self.view.addSubview(cityNameLabel)
+        self.view.addSubview(partsOftheDayTempretureTableView)
     }
     
     private func makeConstraints() {

@@ -6,3 +6,14 @@
 //
 
 import Foundation
+
+struct PartsOfTheDayTempretureModel {
+    let tempretures: [PartOfTheDay : Int]
+}
+
+enum PartOfTheDay {
+    case morning
+    case day
+    case evening
+    case night
+}

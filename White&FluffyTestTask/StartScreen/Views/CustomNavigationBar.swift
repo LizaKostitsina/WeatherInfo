@@ -10,12 +10,12 @@ import UIKit
 class CustomNavigationBar: UINavigationBar {
     
     private lazy var titleLabel: UILabel = {
-        let titleLabel = UILabel()
-        titleLabel.font = UIFont(name: "Georgia", size: 20)
-        titleLabel.textColor = UIColor.black
-        titleLabel.text = "Weather Info"
-        titleLabel.textAlignment = .center
-        return titleLabel
+        let label = UILabel()
+        label.font = UIFont(name: "Georgia", size: 20)
+        label.textColor = UIColor.black
+        label.text = "Weather Info"
+        label.textAlignment = .center
+        return label
     }()
     
     //MARK: - Lifecycle methods
